@@ -9,16 +9,31 @@ var nodes = [
     { id: 'b', r: 20, x: -20, y: 50 },
     { id: 'c', r: 10, x: 0, y: 10 },
     { id: 'd', r: 16, x: 40, y: 50 },
-    { id: 'e', r: 20, x: 80, y: 10 }
+    { id: 'e', r: 20, x: 80, y: -10 },
+    { id: 'f', r: 16, x: 40, y: -50 },
+    { id: 'g', r: 20, x: -80, y: 10 },
+    { id: 'h', r: 16, x: -40, y: -50 },
+    { id: 'i', r: 20, x: -80, y: 10 }
 ];
 
+for (var i = 0; i < 100; i++) {
+    nodes.push({ id: Math.random()*100, r: Math.random()*20, x: Math.random()*100, y: Math.random()*100 });
+}
+
 var simulation = d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-100)) // lower is further apart
-    .force('x', d3.forceX().x(function(d) {
+    // scatter bubbles for split second
+    //.force('charge', d3.forceManyBody().strength(-100)) // lower is further apart
+
+    // pull bubbles towards their specified position
+    .force('x', d3.forceX().x(function (d) {
         return d.x;
     }))
-    .force('y', d3.forceY().y(function(d) {
+    .force('y', d3.forceY().y(function (d) {
         return d.y;
+    }))
+    // force bubbles apart from each other
+    .force('collision', d3.forceCollide().radius(function(d) {
+        return d.r+4;
     }))
     .alphaTarget(1)
     .on('tick', ticked);
@@ -36,8 +51,8 @@ function restart() {
     node = node.enter().append('circle')
         .attr('fill', function (d) { return color(d.id); })
         .attr('r', function (d) { return d.r; })
-        // .attr('cx', 10)
-        // .attr('cy', -300)
+        //.attr('cx', 10)
+        //.attr('cy', -300)
         .merge(node);
 
     // Update and restart the simulation.
@@ -61,9 +76,12 @@ button.node().addEventListener('click', (e) => {
 
 })
 
-d3.timeout(function() {
-  restart();
+d3.timeout(function () {
+    restart();
 }, 2000);
+
+
+
 
 // d3.interval(function() {
 //   nodes.pop(); // remove e
